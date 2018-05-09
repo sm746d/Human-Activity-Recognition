@@ -3,6 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 # File Loading
+os.getcwd()
 root = "../Data/"
 pre_process_Output = "../pre_process/"
 pattern = "*.csv"

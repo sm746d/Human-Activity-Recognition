@@ -35,35 +35,31 @@ Y_train = np_utils.to_categorical(Y_enc_train)
 Y_test = np_utils.to_categorical(Y_enc_test)
 
 # Reshape train data to fit LSTM model
-X_train = X_train.reshape(11, 3037, 7)
-Y_train = Y_train.reshape(11, 3037, 7)
-
-# Drop rows with row number more than 3037 for Validation set to fit LSTM cell and reshape arrays
-X_test = np.delete(X_test, np.s_[3037:], axis=0).reshape(1, 3037, 7)
-Y_test = np.delete(Y_test, np.s_[3037:], axis=0).reshape(1, 3037, 7)
+X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
 # Define the model
 model = Sequential()
-model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2, input_shape=(3037, 7), return_sequences=True))
-model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2,return_sequences=True))
-model.add(Dense(128))
-model.add(Dense(128))
-model.add(Dense(7, activation='sigmoid'))
-
-model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-
+layers = [1, 50, 100, 1]
+model.add(LSTM(layers[1],input_shape=(None, 1),return_sequences=True))
+model.add(Dropout(0.2))
+model.add(LSTM(layers[2],return_sequences=False))
+model.add(Dropout(0.2))
+model.add(Dense(7))
+model.add(Activation("softmax"))
 model.summary()
+
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Create a Tensorboard Logger
 logger = TensorBoard(log_dir=logs,
                      histogram_freq=5,
                      write_graph=True)
 
-history = model.fit(X_train, Y_train, epochs=10, batch_size=100, validation_data=(X_test, Y_test),
+history = model.fit(X_train, Y_train, epochs=40, batch_size=15, validation_data=(X_test, Y_test),
                     verbose=2, callbacks=[logger])
 
-
-model_builder = tf.saved_model.builder.SavedModelBuilder("../exported_model".format(modelType))
+model_builder = tf.saved_model.builder.SavedModelBuilder("../exported_model{}".format(modelType))
 
 inputs = {
     'input': tf.saved_model.utils.build_tensor_info(model.input)
