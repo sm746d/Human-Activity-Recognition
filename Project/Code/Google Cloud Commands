@@ -1,0 +1,10 @@
+1. Create bucket:
+    gsutil mb -l us-central1 gs://cpsc597
+2. Copy exported model to bucket:
+    gsutil cp -R exported_model/* gs://cpsc597/arem_v1/
+3. Create ml-engine
+    gcloud ml-engine models create arem --regions us-central1
+4. Specify ml-engine version and point the ml-engine "arem" to google cloud storage directory
+    gcloud ml-engine versions create v1 --model=arem --origin=gs://cpsc597/arem_v1
+5. Predict on input
+    gcloud ml-engine --model=arem --json-instances=sample_input.json
