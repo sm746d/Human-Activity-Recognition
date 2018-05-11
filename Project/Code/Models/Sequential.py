@@ -52,7 +52,7 @@ logger = TensorBoard(log_dir=logs,
                      write_graph=True)
 
 history = model.fit(X_train, Y_train,
-                    epochs=40, batch_size=15, validation_data=(X_test, Y_test),
+                    epochs=40, batch_size=192, validation_data=(X_test, Y_test),
                     verbose=2, callbacks=[logger])
 
 
